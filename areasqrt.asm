@@ -1,0 +1,168 @@
+$P 00 20;   0010 0000 0000 0000 --IN R0,00H     edge A in R0
+$P 01 00
+$P 02 21;   0010 0001 0000 0000 --IN R1,00H     edge B in R1
+$P 03 00
+$P 04 22;   0010 0010 0000 0000 --IN R2,00H     edge C in R2
+$P 05 00
+$P 06 D0;   1101 0000 1000 0000 --STA 80H,R0    store A at 80H 
+$P 07 80
+$P 08 04;   0000 0100           --ADD R0,R1     A+B in R0
+$P 09 08;   0000 1000           --ADD R0,R2     A+B+C in R0
+$P 0A 63;   0110 0011 0000 0001 --LDI R3,01H    set R3 as 1
+$P 0B 01
+$P 0C BC;   1011 1100           --SHR R0,R3
+$P 0D 43;   0100 0011           --MOV R3,R0     p = 1 / 2 (A + B + C) in R3, R0
+$P 0E 84;   1000 0100           --SUB R0,R1     p - B in R0
+$P 0F 4D;   0100 1101           --MOV R1,R3
+$P 10 89;   1000 1001           --SUB R1,R2     p - C in R1
+$P 11 42;   0100 0010           --MOV R2,R0     p - B in R2, R0
+$P 12 D3;   1101 0011 0111 0000 --STA 70H,R3    store R3 = p at 70H
+$P 13 70
+$P 14 63;   0110 0011 0000 0001 --LDI R3,01H    set R3 as 1
+$P 15 01;
+$P 16 71;   0111 0001           --DEC R1
+$P 17 F0;   1111 0000 0010 0010 --BZC RESULT1
+$P 18 1F
+$P 19 08;   0000 1000           --ADD R0,R2     here is LOOP1
+$P 1A 71;   0111 0001           --DEC R1
+$P 1B F0;   1111 0000 0010 0010 --BZC RESULT1
+$P 1C 1F
+$P 1D E0;   1110 0000 0001 1100 --JMP LOOP1
+$P 1E 19
+$P 1F C1;   1100 0001 0101 0000 --LAD 00,70H,R1 here is RESULT1 now we have got (p - B)(p - C) in R0, p in R1
+$P 20 70
+$P 21 71;   0111 0001           --DEC R1
+$P 22 F0;   1111 0000 0010 1110 --BZC RESULT2
+$P 23 2B
+$P 24 42;   0100 0010           --MOV R2,R0     (p - B)(p - C) in R2, R0
+$P 25 08;   0000 1000           --ADD R0,R2     here is LOOP2
+$P 26 71;   0111 0001           --DEC R1
+$P 27 F0;   1111 0000 0010 1110 --BZC RESULT2
+$P 28 2B
+$P 29 E0;   1110 0000 0010 1000 --JMP LOOP2
+$P 2A 25
+$P 2B C2;   1100 0010 0110 0000 --LAD 00 R2,80H here is RESULT2 now we have got p(p- B)(p - C) in R0, A in R2
+$P 2C 80
+$P 2D C1;   1100 0001 0111 0000 --LAD 00 R1,70H p in R1
+$P 2E 70
+$P 2F 89;   1000 1001           --SUB R1,R2     p - A in R1
+$P 30 42;   0100 0010           --MOV R2,R0     p(p- B)(p - C) in R0, R2
+$P 31 71;   0111 0001           --DEC R1
+$P 32 F0;   1111 0000 0011 1100 --BZC RESULT3
+$P 33 3A
+$P 34 08;   0000 1000           --ADD R0,R2     here is LOOP3
+$P 35 71;   0111 0001           --DEC R1
+$P 36 F0;   1111 0000 0011 1100 --BZC RESULT3
+$P 37 3A
+$P 38 E0;   1110 0000 0011 0111 --JMP LOOP3
+$P 39 34
+;BEGIN TO SQRT
+$P 3A 62;   0110 0010 0000 0000 --LDI R2,0      here is RESULT3 now we have p(p - A)(p - B)(p - C) in R0
+$P 3B 00
+$P 3C D0;   1101 0000 1000 0001 --STA 81H,R0
+$P 3D 81
+$P 3E D0;   1101 0000 1000 0010 --STA 82H,R0
+$P 3F 82
+$P 40 42;   0100 0010           --MOV R2,R0
+$P 41 63;   0110 0011 0000 0001 --LDI R3,1      here is LOOP6
+$P 42 01
+$P 43 61;   0110 0001 0000 0001 --LDI R1,1
+$P 44 01
+$P 45 60;   0110 0000 0000 0000 --LDI R0,0
+$P 46 00
+$P 47 04;   0000 0100           --ADD R0,R1     here is LOOP5
+$P 48 0D;   0000 1101           --ADD R1,R3
+$P 49 0D;   0000 1101           --ADD R1,R3
+$P 4A 8E;   1000 1110           --SUB R2,R3
+$P 4B F0;   1111 0000 0101 0010 --BZC RESULT4
+$P 4C 4F
+$P 4D E0;   1110 0000 0100 0100 --JMP LOOP5
+$P 4E 47
+$P 4F C1;   1100 0001 1000 0001 --LAD 00 R1,81H   here is RESULT4
+$P 50 81
+$P 51 C2;   1100 0010 0110 0010 --LAD 00 R2,82H
+$P 52 82
+$P 53 8E;   1000 1110           --SUB R2,R3
+$P 54 D2;   1101 0010 0110 0010 --STA 82H,R2
+$P 55 82
+$P 56 81;   1000 0001           --SUB R1,R0
+$P 57 63;   0110 0011 0111 1111 --LDI R3,7FH
+$P 58 7F
+$P 59 1D;   0001 1101           --AND R1,R3
+$P 5A 63;   0110 0011 0000 0000 --LDI R3,0
+$P 5B 00
+$P 5C 8D;   1000 1101           --SUB R1,R3
+$P 5D F0;   1111 0000 0101 1001 --BZC RESULT5
+$P 5E 64
+$P 5F C1;   1100 0001 1000 0001 --LAD 00 R1,81H
+$P 60 81
+$P 61 81;   1000 0001           --SUB R1,R0
+$P 62 F0;   1111 0000 0100 0100 --BZC LOOP6
+$P 63 41
+;out
+$P 64 63;   0110 0011 0000 0001 --LDI R3,1      here is RESULT5
+$P 65 01
+$P 66 0E;   0000 1110           --ADD R2,R3
+$P 67 38;   0011 1000 0100 0000 --OUT 40H,R2
+$P 68 40
+$P 69 50;   0101 0000           --HALT
+; //***** End Of Main Memory Data *****// 
+
+; //** Start Of MicroController Data **//
+$M 00 000001 ; NOP
+$M 01 006D43 ; PC->AR, PC + 1
+$M 03 107070 ; MEM->IR, P<1>
+$M 04 002405 ; RS->B
+$M 05 04B201 ; A + B->RD
+$M 06 002407 ; RS->B
+$M 07 013201 ; A and B->RD
+$M 08 106009 ; MEM->AR
+$M 09 183001 ; IO->RD
+$M 0A 106010 ; MEM->AR
+$M 0B 000001 ; NOP
+$M 0C 103001 ; MEM->RD
+$M 0D 200601 ; RD->MEM
+$M 0E 005341 ; A->PC
+$M 0F 0000CB ; NOP, P<3>
+$M 10 280401 ; RS->IO
+$M 11 103001 ; MEM->RD
+$M 12 063201 ; A - 1->RD        06B201 at first
+$M 13 002414 ; RS->B
+$M 14 05B201 ; A- B->RD
+$M 15 002416 ; RS->B
+$M 16 01B201 ; A or B->RD
+$M 17 002418 ; RS->B
+$M 18 02B201 ; A ROR->RD
+$M 19 00241A ; RS->B            new
+$M 1A 033201 ; A SAR->RD        new
+$M 1B 005341 ; A->PC
+$M 1C 10101D ; MEM->A
+$M 1D 10608C ; MEM->AR, P<2>
+$M 1E 10601F ; MEM->AR
+$M 1F 101020 ; MEM->A
+$M 20 10608C ; MEM->AR, P<2>
+$M 28 101029 ; MEM->A
+$M 29 00282A ; RI->B
+$M 2A 04E22B ; A + B->AR
+$M 2B 04928C ; A + B->A, P<2>
+$M 2C 10102D ; MEM->A
+$M 2D 002C2E ; PC->B
+$M 2E 04E22F ; A + B->AR
+$M 2F 04928C ; A + B->A, P<2>
+$M 30 001604 ; RD->A
+$M 31 001606 ; RD->A
+$M 32 006D48 ; PC->AR, PC + 1
+$M 33 006D4A ; PC->AR, PC + 1
+$M 34 003401 ; RS->RD
+$M 35 000035 ; NOP
+$M 36 006D51 ; PC->AR, PC + 1
+$M 37 001612 ; RD->A
+$M 38 001613 ; RD->A
+$M 39 001615 ; RD->A
+$M 3A 001617 ; RD->A
+$M 3B 001619 ; RD->A            000001 at first
+$M 3C 006D5C ; PC->AR, PC + 1
+$M 3D 006D5E ; PC->AR, PC + 1
+$M 3E 006D68 ; PC->AR, PC + 1
+$M 3F 006D6C ; PC->AR, PC + 1
+; //** End Of MicroController Data **//
